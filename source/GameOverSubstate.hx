@@ -7,7 +7,6 @@ import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import haxe.display.Display.Package;
-import ui.PreferencesMenu;
 
 class GameOverSubstate extends MusicBeatSubstate
 {
@@ -15,7 +14,6 @@ class GameOverSubstate extends MusicBeatSubstate
 	var camFollow:FlxObject;
 
 	var stageSuffix:String = "";
-	var randomGameover:Int = 1;
 
 	public function new(x:Float, y:Float)
 	{
@@ -57,13 +55,6 @@ class GameOverSubstate extends MusicBeatSubstate
 		FlxG.camera.target = null;
 
 		bf.playAnim('firstDeath');
-
-		var randomCensor:Array<Int> = [];
-
-		if (PreferencesMenu.getPref('censor-naughty'))
-			randomCensor = [1, 3, 8, 13, 17, 21];
-
-		randomGameover = FlxG.random.int(1, 25, randomCensor);
 	}
 
 	var playingDeathSound:Bool = false;
@@ -86,44 +77,21 @@ class GameOverSubstate extends MusicBeatSubstate
 			PlayState.seenCutscene = false;
 			FlxG.sound.music.stop();
 
-			if (PlayState.isStoryMode)
+			/*if (PlayState.isStoryMode)
 				FlxG.switchState(new StoryMenuState());
-			else
+			else*/
 				FlxG.switchState(new FreeplayState());
 		}
-
-		#if debug
-		if (FlxG.keys.justPressed.EIGHT)
-			FlxG.switchState(new AnimationDebug(bf.curCharacter));
-		#end
 
 		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.curFrame == 12)
 		{
 			FlxG.camera.follow(camFollow, LOCKON, 0.01);
 		}
 
-		switch (PlayState.storyWeek)
+		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished)
 		{
-			case 7:
-				if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished && !playingDeathSound)
-				{
-					playingDeathSound = true;
-
-					bf.startedDeath = true;
-					coolStartDeath(0.2);
-
-					FlxG.sound.play(Paths.sound('jeffGameover/jeffGameover-' + randomGameover), 1, false, null, true, function()
-					{
-						if (!isEnding)
-							FlxG.sound.music.fadeIn(4, 0.2, 1);
-					});
-				}
-			default:
-				if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished)
-				{
-					bf.startedDeath = true;
-					coolStartDeath();
-				}
+			bf.startedDeath = true;
+			coolStartDeath();
 		}
 
 		if (FlxG.sound.music.playing)

@@ -1,4 +1,4 @@
 export/
 .vscode/
-APIStuff.hx
 .DS_STORE
+temp/

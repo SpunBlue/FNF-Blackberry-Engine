@@ -6,8 +6,6 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import shaderslmfao.ColorSwap;
-import ui.PreferencesMenu;
 
 using StringTools;
 
@@ -33,8 +31,6 @@ class Note extends FlxSprite
 
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
-
-	public var colorSwap:ColorSwap;
 	public var noteScore:Float = 1;
 
 	public static var swagWidth:Float = 160 * 0.7;
@@ -64,67 +60,26 @@ class Note extends FlxSprite
 
 		var daStage:String = PlayState.curStage;
 
-		switch (daStage)
-		{
-			case 'school' | 'schoolEvil':
-				loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
+		frames = Paths.getSparrowAtlas('NOTE_assets');
 
-				animation.add('greenScroll', [6]);
-				animation.add('redScroll', [7]);
-				animation.add('blueScroll', [5]);
-				animation.add('purpleScroll', [4]);
+		animation.addByPrefix('greenScroll', 'green instance');
+		animation.addByPrefix('redScroll', 'red instance');
+		animation.addByPrefix('blueScroll', 'blue instance');
+		animation.addByPrefix('purpleScroll', 'purple instance');
 
-				if (isSustainNote)
-				{
-					loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, 7, 6);
+		animation.addByPrefix('purpleholdend', 'pruple end hold');
+		animation.addByPrefix('greenholdend', 'green hold end');
+		animation.addByPrefix('redholdend', 'red hold end');
+		animation.addByPrefix('blueholdend', 'blue hold end');
 
-					animation.add('purpleholdend', [4]);
-					animation.add('greenholdend', [6]);
-					animation.add('redholdend', [7]);
-					animation.add('blueholdend', [5]);
+		animation.addByPrefix('purplehold', 'purple hold piece');
+		animation.addByPrefix('greenhold', 'green hold piece');
+		animation.addByPrefix('redhold', 'red hold piece');
+		animation.addByPrefix('bluehold', 'blue hold piece');
 
-					animation.add('purplehold', [0]);
-					animation.add('greenhold', [2]);
-					animation.add('redhold', [3]);
-					animation.add('bluehold', [1]);
-				}
-
-				setGraphicSize(Std.int(width * PlayState.daPixelZoom));
-				updateHitbox();
-
-			default:
-				frames = Paths.getSparrowAtlas('NOTE_assets');
-
-				animation.addByPrefix('greenScroll', 'green instance');
-				animation.addByPrefix('redScroll', 'red instance');
-				animation.addByPrefix('blueScroll', 'blue instance');
-				animation.addByPrefix('purpleScroll', 'purple instance');
-
-				animation.addByPrefix('purpleholdend', 'pruple end hold');
-				animation.addByPrefix('greenholdend', 'green hold end');
-				animation.addByPrefix('redholdend', 'red hold end');
-				animation.addByPrefix('blueholdend', 'blue hold end');
-
-				animation.addByPrefix('purplehold', 'purple hold piece');
-				animation.addByPrefix('greenhold', 'green hold piece');
-				animation.addByPrefix('redhold', 'red hold piece');
-				animation.addByPrefix('bluehold', 'blue hold piece');
-
-				setGraphicSize(Std.int(width * 0.7));
-				updateHitbox();
-				antialiasing = true;
-
-				// colorSwap.colorToReplace = 0xFFF9393F;
-				// colorSwap.newColor = 0xFF00FF00;
-
-				// color = FlxG.random.color();
-				// color.saturation *= 4;
-				// replaceColor(0xFFC1C1C1, FlxColor.RED);
-		}
-
-		colorSwap = new ColorSwap();
-		shader = colorSwap.shader;
-		updateColors();
+		setGraphicSize(Std.int(width * 0.7));
+		updateHitbox();
+		antialiasing = true;
 
 		switch (noteData)
 		{
@@ -149,8 +104,8 @@ class Note extends FlxSprite
 			noteScore * 0.2;
 			alpha = 0.6;
 
-			if (PreferencesMenu.getPref('downscroll'))
-				angle = 180;
+			/*if (PreferencesMenu.getPref('downscroll'))
+				angle = 180;*/
 
 			x += width / 2;
 
@@ -169,9 +124,6 @@ class Note extends FlxSprite
 			updateHitbox();
 
 			x -= width / 2;
-
-			if (PlayState.curStage.startsWith('school'))
-				x += 30;
 
 			if (prevNote.isSustainNote)
 			{
@@ -192,11 +144,6 @@ class Note extends FlxSprite
 				// prevNote.setGraphicSize();
 			}
 		}
-	}
-
-	public function updateColors():Void
-	{
-		colorSwap.update(arrowColors[noteData]);
 	}
 
 	override function update(elapsed:Float)

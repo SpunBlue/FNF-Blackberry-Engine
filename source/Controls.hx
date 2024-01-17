@@ -36,8 +36,7 @@ enum Control
 	#end
 }
 
-@:enum
-abstract Action(String) to String from String
+enum abstract Action(String) to String from String
 {
 	var UI_UP      = "ui_up";
 	var UI_LEFT    = "ui_left";
@@ -163,9 +162,6 @@ class Controls extends FlxActionSet
 	public var BACK  (get, never):Bool; inline function get_BACK  () return _back  .check();
 	public var PAUSE (get, never):Bool; inline function get_PAUSE () return _pause .check();
 	public var RESET (get, never):Bool; inline function get_RESET () return _reset .check();
-	#if CAN_CHEAT
-	public var CHEAT (get, never):Bool; inline function get_CHEAT () return _cheat.check ();
-	#end
 	
 	public function new(name, scheme:KeyboardScheme = null)
 	{
@@ -199,9 +195,6 @@ class Controls extends FlxActionSet
 		add(_back);
 		add(_pause);
 		add(_reset);
-		#if CAN_CHEAT
-		add(_cheat);
-		#end
 
 		for (action in digitalActions)
 			byName[action.name] = action;
@@ -501,7 +494,21 @@ class Controls extends FlxActionSet
 				bindKeys(Control.PAUSE, [ENTER]);
 				bindKeys(Control.RESET, [BACKSPACE]);
 			case None: // nothing
-			case Custom: // nothing
+			case Custom: 
+				// TEMPORARY!!!
+				bindKeys(Control.UI_UP, [W, FlxKey.UP]);
+				bindKeys(Control.UI_DOWN, [S, FlxKey.DOWN]);
+				bindKeys(Control.UI_LEFT, [A, FlxKey.LEFT]);
+				bindKeys(Control.UI_RIGHT, [D, FlxKey.RIGHT]);
+				bindKeys(Control.NOTE_UP, [J, FlxKey.UP]);
+				bindKeys(Control.NOTE_DOWN, [F, FlxKey.DOWN]);
+				bindKeys(Control.NOTE_LEFT, [D, FlxKey.LEFT]);
+				bindKeys(Control.NOTE_RIGHT, [K, FlxKey.RIGHT]);
+				bindKeys(Control.ACCEPT, [Z, SPACE, ENTER]);
+				bindKeys(Control.BACK, [X, BACKSPACE, ESCAPE]);
+				bindKeys(Control.PAUSE, [P, ENTER, ESCAPE]);
+				bindKeys(Control.RESET, [R]);
+				
 		}
 	}
 
