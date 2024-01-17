@@ -20,7 +20,7 @@ Q: Why should I use this engine? <br>
 A: There aren't any big reasons, but I can list a few. The engine will be as lightweight as I can possibly make it, especially since I will be entirely seperating the base game into a mod it self. I will also be removing any unnecessary code and features from the game and either replacing them with lighter alternatives or removing them entirely.<br>
 Q: How will the modding system work? <br>
 A: Tough to say as I haven't implemented it as of writing, but I plan to make it use HScript.<br>
-Q: Is there a Discord Server I can join?
+Q: Is there a Discord Server I can join?<br>
 A: Yes, how ever as of writing it is rather unfinished. Scroll up to join.
 
 ## Build instructions
