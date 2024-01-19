@@ -63,8 +63,7 @@
 	<!--<template path="example_mods" rename="mods" />-->
 	<!-- <template path='mods' /> -->
 
-	<assets path="root/mods" rename="mods" embed='false' if='desktop'/>
-	<assets path='readme.txt' rename='do NOT readme.txt' />
+	<assets path="root/" rename="" embed='false' if='desktop'/>
 
 	<!-- NOTE FOR FUTURE SELF SINCE FONTS ARE ALWAYS FUCKY 
 		TO FIX ONE OF THEM, I CONVERTED IT TO OTF. DUNNO IF YOU NEED TO
