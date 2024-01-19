@@ -1,5 +1,8 @@
 package;
 
+#if CAN_MOD
+import engine.modlib.ModdingSystem;
+#end
 import flixel.system.FlxAssets.FlxSoundAsset;
 import Section.SwagSection;
 import Song.SwagSong;
@@ -40,10 +43,6 @@ import lime.utils.Assets;
 
 using StringTools;
 
-#if discord_rpc
-import Discord.DiscordClient;
-#end
-
 class PlayState extends MusicBeatState
 {
 	public static var curStage:String = '';
@@ -54,6 +53,7 @@ class PlayState extends MusicBeatState
 	public static var storyDifficulty:Int = 1;
 	public static var deathCounter:Int = 0;
 	public static var practiceMode:Bool = false;
+	public static var isModded:Bool = false;
 
 	var halloweenLevel:Bool = false;
 
@@ -109,24 +109,12 @@ class PlayState extends MusicBeatState
 
 	var inCutscene:Bool = false;
 
-	#if discord_rpc
-	// Discord RPC variables
-	var storyDifficultyText:String = "";
-	var iconRPC:String = "";
-	var songLength:Float = 0;
-	var detailsText:String = "";
-	var detailsPausedText:String = "";
-	#end
-
 	var camPos:FlxPoint;
 
 	override public function create()
 	{
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
-
-		FlxG.sound.cache(Paths.inst(PlayState.SONG.song));
-		FlxG.sound.cache(Paths.voices(PlayState.SONG.song));
 
 		// var gameCam:FlxCamera = FlxG.camera;
 		camGame = new SwagCamera();
@@ -141,10 +129,6 @@ class PlayState extends MusicBeatState
 
 		Conductor.mapBPMChanges(SONG);
 		Conductor.changeBPM(SONG.bpm);
-
-		#if discord_rpc
-		initDiscord();
-		#end
 
 		// STAGE
 		defaultCamZoom = 0.9;
@@ -334,11 +318,11 @@ class PlayState extends MusicBeatState
 		scoreTxt.scrollFactor.set();
 		add(scoreTxt);
 
-		iconP1 = new HealthIcon(SONG.player1, true);
+		iconP1 = new HealthIcon(boyfriend.data.iconPath, true);
 		iconP1.y = healthBar.y - (iconP1.height / 2);
 		add(iconP1);
 
-		iconP2 = new HealthIcon(SONG.player2, false);
+		iconP2 = new HealthIcon(dad.data.iconPath, false);
 		iconP2.y = healthBar.y - (iconP2.height / 2);
 		add(iconP2);
 
@@ -422,20 +406,6 @@ class PlayState extends MusicBeatState
 		super.create();
 	}
 
-	function initDiscord():Void
-	{
-		#if discord_rpc
-		/*storyDifficultyText = difficultyString();
-		iconRPC = SONG.player2;
-
-		detailsText = isStoryMode ? "Story Mode: Week " + storyWeek : "Freeplay";
-		detailsPausedText = "Paused - " + detailsText;
-
-		// Updating Discord Rich Presence.
-		DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);*/
-		#end
-	}
-
 	var startTimer:FlxTimer = new FlxTimer();
 	var perfectMode:Bool = false;
 
@@ -465,8 +435,6 @@ class PlayState extends MusicBeatState
 				if (!dad.animation.curAnim.name.startsWith("sing"))
 					dad.dance();
 			}
-			else if (dad.curCharacter == 'spooky' && !dad.animation.curAnim.name.startsWith("sing"))
-				dad.dance();
 			if (generatedMusic)
 				notes.sort(sortNotes, FlxSort.DESCENDING);
 
@@ -510,18 +478,18 @@ class PlayState extends MusicBeatState
 
 		previousFrameTime = FlxG.game.ticks;
 
-		if (!paused)
+		if (!paused){
+			#if CAN_MOD
+			if (isModded)
+			 	FlxG.sound.playMusic(ModAssets.getSound('assets/songs/${SONG.song}/inst.ogg'));
+			else
+				FlxG.sound.playMusic(Paths.inst(SONG.song), 1, false);
+			#else
 			FlxG.sound.playMusic(Paths.inst(SONG.song), 1, false);
+			#end
+		}
 		FlxG.sound.music.onComplete = endSong;
 		vocals.play();
-
-		#if discord_rpc
-		// Song duration in a float, useful for the time left feature
-		songLength = FlxG.sound.music.length;
-
-		// Updating Discord Rich Presence (with Time Left)
-		DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC, true, songLength);
-		#end
 	}
 
 	private function generateSong():Void
@@ -533,8 +501,16 @@ class PlayState extends MusicBeatState
 
 		curSong = songData.song;
 
-		if (SONG.needsVoices)
+		if (SONG.needsVoices){
+			#if CAN_MOD
+			if (isModded)
+				vocals = new FlxSound().loadEmbedded(ModAssets.getSound('assets/songs/${SONG.song}/voices.ogg'));
+			else
+				vocals = new FlxSound().loadEmbedded(Paths.voices(SONG.song));
+			#else
 			vocals = new FlxSound().loadEmbedded(Paths.voices(SONG.song));
+			#end
+		}
 		else
 			vocals = new FlxSound();
 
@@ -757,40 +733,10 @@ class PlayState extends MusicBeatState
 			if (!startTimer.finished)
 				startTimer.active = true;
 			paused = false;
-
-			#if discord_rpc
-			if (startTimer.finished)
-				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC, true, songLength - Conductor.songPosition);
-			else
-				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
-			#end
 		}
 
 		super.closeSubState();
 	}
-
-	#if discord_rpc
-	override public function onFocus():Void
-	{
-		if (health > 0 && !paused && FlxG.autoPause)
-		{
-			if (Conductor.songPosition > 0.0)
-				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC, true, songLength - Conductor.songPosition);
-			else
-				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
-		}
-
-		super.onFocus();
-	}
-
-	override public function onFocusLost():Void
-	{
-		if (health > 0 && !paused && FlxG.autoPause)
-			DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
-
-		super.onFocusLost();
-	}
-	#end
 
 	function resyncVocals():Void
 	{
@@ -865,10 +811,6 @@ class PlayState extends MusicBeatState
 			openSubState(pauseSubState);
 			pauseSubState.camera = camHUD;
 			boyfriendPos.put();
-
-			#if discord_rpc
-			DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
-			#end
 		}
 
 		if (FlxG.keys.justPressed.SEVEN)
@@ -966,11 +908,6 @@ class PlayState extends MusicBeatState
 				openSubState(new GameOverSubstate(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 
 				// FlxG.switchState(new GameOverState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
-
-				#if discord_rpc
-				// Game Over doesn't get his own variable because it's only used here
-				DiscordClient.changePresence("Game Over - " + detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
-				#end
 			}
 		}
 
@@ -1385,7 +1322,15 @@ class PlayState extends MusicBeatState
 	{
 		if (camFollow.x != dad.getMidpoint().x + 150 && !cameraRightSide)
 		{
-			camFollow.setPosition(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
+			var x = dad.getMidpoint().x + 150;
+			var y = dad.getMidpoint().y - 100;
+
+			if (dad.data.cameraOffsets != null){
+				x + dad.data.cameraOffsets[0];
+				y + dad.data.cameraOffsets[1];
+			}
+
+			camFollow.setPosition(x, y);
 
 			if (SONG.song.toLowerCase() == 'tutorial')
 				tweenCamIn();
@@ -1393,7 +1338,15 @@ class PlayState extends MusicBeatState
 
 		if (cameraRightSide && camFollow.x != boyfriend.getMidpoint().x - 100)
 		{
-			camFollow.setPosition(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
+			var x = boyfriend.getMidpoint().x - 100;
+			var y = boyfriend.getMidpoint().y - 100;
+
+			if (boyfriend.data.cameraOffsets != null){
+				x + boyfriend.data.cameraOffsets[0];
+				y + boyfriend.data.cameraOffsets[1];
+			}
+
+			camFollow.setPosition(x, y);
 
 			if (SONG.song.toLowerCase() == 'tutorial')
 				FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
@@ -1646,11 +1599,6 @@ class PlayState extends MusicBeatState
 		{
 			if (!boyfriend.animation.curAnim.name.startsWith("sing"))
 				boyfriend.playAnim('idle');
-			if (!dad.animation.curAnim.name.startsWith("sing"))
-				dad.dance();
-		}
-		else if (dad.curCharacter == 'spooky')
-		{
 			if (!dad.animation.curAnim.name.startsWith("sing"))
 				dad.dance();
 		}

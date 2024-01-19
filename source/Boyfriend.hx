@@ -20,7 +20,7 @@ class Boyfriend extends Character
 
 	override function update(elapsed:Float)
 	{
-		if (!debugMode)
+		if (animation.curAnim != null)
 		{
 			if (animation.curAnim.name.startsWith('sing'))
 			{
@@ -29,7 +29,7 @@ class Boyfriend extends Character
 			else
 				holdTimer = 0;
 
-			if (animation.curAnim.name.endsWith('miss') && animation.curAnim.finished && !debugMode)
+			if (animation.curAnim.name.endsWith('miss') && animation.curAnim.finished)
 			{
 				playAnim('idle', true, false, 10);
 			}

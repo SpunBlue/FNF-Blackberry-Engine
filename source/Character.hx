@@ -1,19 +1,70 @@
 package;
 
+import haxe.Json;
+#if sys
+import sys.io.File;
+import sys.FileSystem;
+#end
+import openfl.display.BitmapData;
+import openfl.Assets;
 import Section.SwagSection;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.animation.FlxBaseAnimation;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.util.FlxSort;
+#if CAN_MOD
 import haxe.io.Path;
+import engine.modlib.ModdingSystem;
+#end
 
 using StringTools;
+
+class CharacterUtil{
+	/**
+	 * All characters that come with the Engine, done like this since I don't think it's possible to search through the character directory in HTML5
+	 */
+	public static final characterList:Array<String> = [
+		'bf',
+		'gf',
+		'dad'
+	];
+
+	/**
+	 * `Character Name`, `CharacterJson`
+	 */
+	public static var characters:Map<String, CharacterJson> = new Map<String, CharacterJson>();
+
+	/**
+	 * Loads all hardcoded Characters
+	 */
+	public static function loadCharacters(){
+		trace('Loading Hardcoded Characters');
+
+		for (char in CharacterUtil.characterList){
+			var data:CharacterJson = Json.parse(Assets.getText(Paths.json('characters/$char')));
+			
+			CharacterUtil.characters.set(char, data);
+			trace('Loaded $char (Hardcoded)');
+		}
+	}
+
+	public static function getCharacter(character:String):Array<Any>{		
+		if (ModdingSystem.curMod != null && FileSystem.exists(Path.normalize('${ModdingSystem.getModPath()}/assets/data/characters/$character.json')))
+			return [ModAssets.getJSON('assets/data/characters/$character.json'), true];
+		
+		if (characters.exists(character))
+			return [characters.get(character), false];
+		else{
+			trace('Failed to find character: $character');
+			return null;
+		}
+	}
+}
 
 class Character extends FlxSprite
 {
 	public var animOffsets:Map<String, Array<Dynamic>>;
-	public var debugMode:Bool = false;
 
 	public var isPlayer:Bool = false;
 	public var curCharacter:String = 'bf';
@@ -21,6 +72,8 @@ class Character extends FlxSprite
 	public var holdTimer:Float = 0;
 
 	public var animationNotes:Array<Dynamic> = [];
+
+	public var data:CharacterJson = null;
 
 	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
 	{
@@ -33,123 +86,49 @@ class Character extends FlxSprite
 		var tex:FlxAtlasFrames;
 		antialiasing = true;
 
-		switch (curCharacter)
-		{
-			case 'gf':
-				// GIRLFRIEND CODE
-				tex = Paths.getSparrowAtlas('characters/GF_assets');
-				frames = tex;
-				quickAnimAdd('cheer', 'GF Cheer');
-				quickAnimAdd('singLEFT', 'GF left note');
-				quickAnimAdd('singRIGHT', 'GF Right Note');
-				quickAnimAdd('singUP', 'GF Up Note');
-				quickAnimAdd('singDOWN', 'GF Down Note');
-				animation.addByIndices('sad', 'gf sad', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "", 24, true);
-				animation.addByIndices('danceLeft', 'GF Dancing Beat', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
-				animation.addByIndices('danceRight', 'GF Dancing Beat', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
-				animation.addByIndices('hairBlow', "GF Dancing Beat Hair blowing", [0, 1, 2, 3], "", 24);
-				animation.addByIndices('hairFall', "GF Dancing Beat Hair Landing", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "", 24, false);
-				animation.addByPrefix('scared', 'GF FEAR', 24, true);
+		var stuff = CharacterUtil.getCharacter(character);
 
-				loadOffsetFile(curCharacter);
+		data = stuff[0];
+		var isMod:Bool = stuff[1];
 
-				playAnim('danceRight');
-			case 'dad':
-				// DAD ANIMATION LOADING CODE
-				tex = Paths.getSparrowAtlas('characters/DADDY_DEAREST');
-				frames = tex;
-				quickAnimAdd('idle', 'Dad idle dance');
-				quickAnimAdd('singUP', 'Dad Sing Note UP');
-				quickAnimAdd('singRIGHT', 'Dad Sing Note RIGHT');
-				quickAnimAdd('singDOWN', 'Dad Sing Note DOWN');
-				quickAnimAdd('singLEFT', 'Dad Sing Note LEFT');
+		if (isMod == false)
+			frames = FlxAtlasFrames.fromSparrow(Paths.image(data.imagePath.split('.')[0]), Assets.getText(Paths.file('images/${data.xmlPath}')));
+		else{
+			#if CAN_MOD
+			/*var imagesPath:String = Path.normalize('${ModdingSystem.getModPath()}/assets/images');
 
-				loadOffsetFile(curCharacter);
+			frames = FlxAtlasFrames.fromSparrow(BitmapData.fromFile('$imagesPath/${data.imagePath}'), File.getContent('$imagesPath/${data.xmlPath}'));*/
 
-				playAnim('idle');
-			case 'bf':
-				var tex = Paths.getSparrowAtlas('characters/BOYFRIEND');
-				frames = tex;
-				quickAnimAdd('idle', 'BF idle dance');
-				quickAnimAdd('singUP', 'BF NOTE UP0');
-				quickAnimAdd('singLEFT', 'BF NOTE LEFT0');
-				quickAnimAdd('singRIGHT', 'BF NOTE RIGHT0');
-				quickAnimAdd('singDOWN', 'BF NOTE DOWN0');
-				quickAnimAdd('singUPmiss', 'BF NOTE UP MISS');
-				quickAnimAdd('singLEFTmiss', 'BF NOTE LEFT MISS');
-				quickAnimAdd('singRIGHTmiss', 'BF NOTE RIGHT MISS');
-				quickAnimAdd('singDOWNmiss', 'BF NOTE DOWN MISS');
-				quickAnimAdd('hey', 'BF HEY');
-
-				quickAnimAdd('firstDeath', "BF dies");
-				animation.addByPrefix('deathLoop', "BF Dead Loop", 24, true);
-				quickAnimAdd('deathConfirm', "BF Dead confirm");
-
-				animation.addByPrefix('scared', 'BF idle shaking', 24, true);
-
-				loadOffsetFile(curCharacter);
-
-				playAnim('idle');
-
-				flipX = true;
-
-				loadOffsetFile(curCharacter);
-			case 'bf-pixel':
-					frames = Paths.getSparrowAtlas('characters/bfPixel');
-					quickAnimAdd('idle', 'BF IDLE');
-					quickAnimAdd('singUP', 'BF UP NOTE');
-					quickAnimAdd('singLEFT', 'BF LEFT NOTE');
-					quickAnimAdd('singRIGHT', 'BF RIGHT NOTE');
-					quickAnimAdd('singDOWN', 'BF DOWN NOTE');
-					quickAnimAdd('singUPmiss', 'BF UP MISS');
-					quickAnimAdd('singLEFTmiss', 'BF LEFT MISS');
-					quickAnimAdd('singRIGHTmiss', 'BF RIGHT MISS');
-					quickAnimAdd('singDOWNmiss', 'BF DOWN MISS');
-	
-					loadOffsetFile(curCharacter);
-	
-					setGraphicSize(Std.int(width * 6));
-					updateHitbox();
-	
-					playAnim('idle');
-	
-					width -= 100;
-					height -= 100;
-	
-					antialiasing = false;
-	
-					flipX = true;
+			frames = FlxAtlasFrames.fromSparrow(ModAssets.getGraphic('assets/images/${data.imagePath}'), ModAssets.getContent('assets/images/${data.xmlPath}'));
+			#else
+			trace('FAILURE WITH MODDING SYSTEM - Attempted to load non-existent data from Character.hx');
+			#end
 		}
+
+		for (anim in data.animations){
+			if (anim.frames != null && anim.frames.length > 0)
+				animation.addByIndices(anim.name, anim.prefix, anim.frames, "", anim.fps, anim.loop);
+			else
+				animation.addByPrefix(anim.name, anim.prefix, anim.fps, anim.loop);
+
+			if (anim.offsets != null)
+				addOffset(anim.name, anim.offsets[0], anim.offsets[1]);
+		}
+
+		if (data.flipX != null)
+			flipX = data.flipX;
+
+		if (data.graphicSize != null)
+			setGraphicSize(graphic.width * data.graphicSize);
+
+		if (data.positionOffsets != null)
+			setPosition(x + data.positionOffsets[0], y + data.positionOffsets[1]);
 
 		dance();
 		animation.finish();
 
 		if (isPlayer)
-		{
 			flipX = !flipX;
-
-			// Doesn't flip for BF, since his are already in the right place???
-			if (!curCharacter.startsWith('bf'))
-			{
-				// var animArray
-				var oldRight = animation.getByName('singRIGHT').frames;
-				animation.getByName('singRIGHT').frames = animation.getByName('singLEFT').frames;
-				animation.getByName('singLEFT').frames = oldRight;
-
-				// IF THEY HAVE MISS ANIMATIONS??
-				if (animation.getByName('singRIGHTmiss') != null)
-				{
-					var oldMiss = animation.getByName('singRIGHTmiss').frames;
-					animation.getByName('singRIGHTmiss').frames = animation.getByName('singLEFTmiss').frames;
-					animation.getByName('singLEFTmiss').frames = oldMiss;
-				}
-			}
-		}
-	}
-
-	function sortAnims(val1:Array<Dynamic>, val2:Array<Dynamic>):Int
-	{
-		return FlxSort.byValues(FlxSort.ASCENDING, val1[0], val2[0]);
 	}
 
 	function quickAnimAdd(name:String, prefix:String)
@@ -157,20 +136,9 @@ class Character extends FlxSprite
 		animation.addByPrefix(name, prefix, 24, false);
 	}
 
-	private function loadOffsetFile(offsetCharacter:String)
-	{
-		var daFile:Array<String> = CoolUtil.coolTextFile(Paths.file("images/characters/" + offsetCharacter + "Offsets.txt"));
-
-		for (i in daFile)
-		{
-			var splitWords:Array<String> = i.split(" ");
-			addOffset(splitWords[0], Std.parseInt(splitWords[1]), Std.parseInt(splitWords[2]));
-		}
-	}
-
 	override function update(elapsed:Float)
 	{
-		if (!curCharacter.startsWith('bf'))
+		if (!isPlayer && animation.curAnim != null)
 		{
 			if (animation.curAnim.name.startsWith('sing'))
 			{
@@ -188,43 +156,23 @@ class Character extends FlxSprite
 			}
 		}
 
-		/*if (curCharacter.endsWith('-car'))
-		{
-			// looping hair anims after idle finished
-			if (!animation.curAnim.name.startsWith('sing') && animation.curAnim.finished)
-				playAnim('idleHair');
-		}*/
-
-		switch (curCharacter)
-		{
-			case 'gf':
-				if (animation.curAnim.name == 'hairFall' && animation.curAnim.finished)
-					playAnim('danceRight');
-		}
-
 		super.update(elapsed);
 	}
 
 	private var danced:Bool = false;
 
-	/**
-	 * FOR GF DANCING SHIT
-	 */
 	public function dance()
 	{
-		if (!debugMode)
-		{
-			if (animation.exists('danceRight') || animation.exists('danceLeft')){
-				danced = !danced;
+		if (animation.exists('danceRight') && animation.exists('danceLeft')){
+			danced = !danced;
 
-				if (danced)
-					playAnim('danceRight');
-				else
-					playAnim('danceLeft');
-			}
+			if (danced)
+				playAnim('danceRight');
 			else
-				playAnim('idle');
+				playAnim('danceLeft');
 		}
+		else
+			playAnim('idle');
 	}
 
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
@@ -238,27 +186,30 @@ class Character extends FlxSprite
 		}
 		else
 			offset.set(0, 0);
-
-		if (curCharacter == 'gf')
-		{
-			if (AnimName == 'singLEFT')
-			{
-				danced = true;
-			}
-			else if (AnimName == 'singRIGHT')
-			{
-				danced = false;
-			}
-
-			if (AnimName == 'singUP' || AnimName == 'singDOWN')
-			{
-				danced = !danced;
-			}
-		}
 	}
 
 	public function addOffset(name:String, x:Float = 0, y:Float = 0)
 	{
 		animOffsets[name] = [x, y];
 	}
+}
+
+typedef CharacterJson = {
+	var imagePath:String;
+	var xmlPath:String;
+    var animations:Array<AnimationData>;
+	var ?positionOffsets:Array<Float>;
+	var ?cameraOffsets:Array<Float>;
+	var ?iconPath:String; // Defaults to face
+	var ?flipX:Bool;
+	var ?graphicSize:Float;
+}
+
+typedef AnimationData = {
+	var name:String;
+	var prefix:String;
+	var ?frames:Array<Int>;
+	var fps:Int;
+	var loop:Bool;
+	var ?offsets:Array<Int>; // [1, 1] X & Y
 }

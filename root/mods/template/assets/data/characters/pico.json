@@ -1,0 +1,44 @@
+{
+	"imagePath": "Pico_FNF_assetss.png",
+	"xmlPath": "Pico_FNF_assetss.xml",
+	"flipX": true,
+    "animations": [
+        {
+            "name": "idle",
+            "prefix": "Pico Idle Dance0",
+            "fps": 24,
+            "loop": false,
+            "offsets": [0, 0]
+        },
+        {
+            "name": "singUP",
+            "prefix": "pico Up note0",
+            "fps": 24,
+            "loop": false,
+            "offsets": [-29, 27]
+        },
+        {
+            "name": "singRIGHT",
+            "prefix": "Pico Note Right0",
+            "fps": 24,
+            "loop": false,
+            "offsets": [-68, 7]
+        },
+        {
+            "name": "singDOWN",
+            "prefix": "Pico Down Note0",
+            "fps": 24,
+            "loop": false,
+            "offsets": [200, -70]
+        },
+        {
+            "name": "singLEFT",
+            "prefix": "Pico NOTE LEFT0",
+            "fps": 24,
+            "loop": false,
+            "offsets": [65, 9]
+        }
+    ],
+    "iconPath": "assets/images/icons/pico.png",
+    "positionOffsets": [0, 300]
+}

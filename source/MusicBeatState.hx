@@ -1,11 +1,16 @@
 package;
 
+import flixel.addons.transition.TransitionData;
 import Conductor.BPMChangeEvent;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.math.FlxRect;
 import flixel.util.FlxTimer;
 import flixel.addons.ui.FlxUIState;
+
+#if CAN_MOD
+import engine.modlib.ModdingSystem;
+#end
 
 class MusicBeatState extends FlxUIState
 {
@@ -19,6 +24,9 @@ class MusicBeatState extends FlxUIState
 
 	override function create()
 	{
+		if (transIn != null)
+			trace('reg ' + transIn.region);
+
 		super.create();
 	}
 

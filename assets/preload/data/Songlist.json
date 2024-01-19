@@ -1,0 +1,31 @@
+{
+    "songs": [
+        {
+            "name": "Tutorial",
+            "icon": "gf"
+        },
+        {
+            "name": "Bopeebo",
+            "icon": "dad"
+        },
+        {
+            "name": "Fresh",
+            "icon": "dad"
+        },
+        {
+            "name": "Dadbattle",
+            "icon": "dad"
+        }
+    ],
+    
+    "weeks": [
+        {
+            "name": "week1",
+            "songs": [
+                "Bopeebo",
+                "Fresh",
+                "Dadbattle"
+            ]
+        }
+    ]
+}

@@ -2,10 +2,7 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin'" file="Funkin" packageName="com.ninjamuffin99.funkin" package="com.ninjamuffin99.funkin" main="Main" version="0.2.8" company="ninjamuffin99" />
-
-	<!--Switch Export with Unique ApplicationID and Icon-->
-	<set name="APP_ID" value="0x0100f6c013bbc000" />
+	<app title="Friday Night Funkin' Blackberry Engine" file="Funkin" packageName="com.spunblue.funkin" package="com.spunblue.funkin" main="Main" version="1.0.0" company="SpunBlue" />
 
 	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
@@ -45,63 +42,29 @@
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
 	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web"/>
 	
-	<!-- <define name="PRELOAD_ALL" /> -->
 	<define name="PRELOAD_ALL" unless="web" />
 	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL"/>
 	
 	<section if="PRELOAD_ALL">
 		<library name="songs"    preload="true" />
 		<library name="shared"   preload="true" />
-		<library name="tutorial" preload="true" />
-		<library name="week1"    preload="true" />
-		<library name="week2"    preload="true" />
-		<library name="week3"    preload="true" />
-		<library name="week4"    preload="true" />
-		<library name="week5"    preload="true" />
-		<library name="week6"    preload="true" />
-		<library name="week7"    preload="true" />
 	</section>
 	
 	<section if="NO_PRELOAD_ALL">
 		<library name="songs"    preload="false" />
 		<library name="shared"   preload="false" />
-		<library name="tutorial" preload="false" />
-		<library name="week1"    preload="false" />
-		<library name="week2"    preload="false" />
-		<library name="week3"    preload="false" />
-		<library name="week4"    preload="false" />
-		<library name="week5"    preload="false" />
-		<library name="week6"    preload="false" />
-		<library name="week7"    preload="false" />
 	</section>
 	
 	<assets path="assets/songs"    library="songs"    exclude="*.fla|*.ogg" if="web"/>
 	<assets path="assets/songs"    library="songs"    exclude="*.fla|*.mp3" unless="web"/>
 	<assets path="assets/shared"   library="shared"   exclude="*.fla|*.ogg" if="web"/>
 	<assets path="assets/shared"   library="shared"   exclude="*.fla|*.mp3" unless="web"/>
-	<assets path="assets/tutorial" library="tutorial" exclude="*.fla|*.ogg" if="web"/>
-	<assets path="assets/tutorial" library="tutorial" exclude="*.fla|*.mp3" unless="web"/>
-	<assets path="assets/week1"    library="week1"    exclude="*.fla|*.ogg" if="web"/>
-	<assets path="assets/week1"    library="week1"    exclude="*.fla|*.mp3" unless="web"/>
-	<assets path="assets/week2"    library="week2"    exclude="*.fla|*.ogg" if="web"/>
-	<assets path="assets/week2"    library="week2"    exclude="*.fla|*.mp3" unless="web"/>
-	<assets path="assets/week3"    library="week3"    exclude="*.fla|*.ogg" if="web"/>
-	<assets path="assets/week3"    library="week3"    exclude="*.fla|*.mp3" unless="web"/>
-	<assets path="assets/week4"    library="week4"    exclude="*.fla|*.ogg" if="web"/>
-	<assets path="assets/week4"    library="week4"    exclude="*.fla|*.mp3" unless="web"/>
-	<assets path="assets/week5"    library="week5"    exclude="*.fla|*.ogg" if="web"/>
-	<assets path="assets/week5"    library="week5"    exclude="*.fla|*.mp3" unless="web"/>
-	<assets path="assets/week6"    library="week6"    exclude="*.fla|*.ogg" if="web"/>
-	<assets path="assets/week6"    library="week6"    exclude="*.fla|*.mp3" unless="web"/>
-	<assets path="assets/week7"    library="week7"    exclude="*.fla|*.ogg" if="web"/>
-	<assets path="assets/week7"    library="week7"    exclude="*.fla|*.mp3" unless="web"/>
 
-	<template path="example_mods" rename="mods" />
-
-	<assets path='art/readme.txt' rename='do NOT readme.txt' />
+	<!--<template path="example_mods" rename="mods" />-->
 	<!-- <template path='mods' /> -->
-	
-	<assets path="CHANGELOG.md" rename='changelog.txt'/>
+
+	<assets path="root/mods" rename="mods" embed='false' if='desktop'/>
+	<assets path='readme.txt' rename='do NOT readme.txt' />
 
 	<!-- NOTE FOR FUTURE SELF SINCE FONTS ARE ALWAYS FUCKY 
 		TO FIX ONE OF THEM, I CONVERTED IT TO OTF. DUNNO IF YOU NEED TO
@@ -124,8 +87,6 @@
 	<!-- <haxelib name="spinehaxe" /> -->
 	<!-- https://github.com/ninjamuffin99/Flixel-Animate-Atlas-Player -->
 
-
-	<!--<haxelib name="discord_rpc" if="cpp"/> --> <!-- foesn't work with neko -->
 	<!-- <haxelib name="hxcpp-debug-server" if="desktop"/> -->
 
 	<!-- <haxelib name="markdown" /> -->
@@ -174,4 +135,7 @@
 	<icon path="art/icon32.png" size='32'/>
 	<icon path="art/icon64.png" size='64'/>
 	<icon path="art/iconOG.png" />
+	
+	<haxedef name="CAN_MOD" if="desktop || android"/>
+	<haxedef name="discord_rpc" if="desktop || android"/>
 </project>

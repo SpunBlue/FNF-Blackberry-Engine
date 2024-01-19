@@ -1,0 +1,43 @@
+{
+	"imagePath": "characters/DADDY_DEAREST.png",
+	"xmlPath": "characters/DADDY_DEAREST.xml",
+	"flipX": false,
+    "animations": [
+        {
+            "name": "idle",
+            "prefix": "Dad idle dance",
+            "fps": 24,
+            "loop": false,
+            "offsets": [0, 0]
+        },
+        {
+            "name": "singUP",
+            "prefix": "Dad Sing Note UP",
+            "fps": 24,
+            "loop": false,
+            "offsets": [-6, 50]
+        },
+        {
+            "name": "singRIGHT",
+            "prefix": "Dad Sing Note RIGHT",
+            "fps": 24,
+            "loop": false,
+            "offsets": [0, 27]
+        },
+        {
+            "name": "singDOWN",
+            "prefix": "Dad Sing Note DOWN",
+            "fps": 24,
+            "loop": false,
+            "offsets": [0, -30]
+        },
+        {
+            "name": "singLEFT",
+            "prefix": "Dad Sing Note LEFT",
+            "fps": 24,
+            "loop": false,
+            "offsets": [-10, 10]
+        }
+    ],
+    "iconPath": "dad"
+}
